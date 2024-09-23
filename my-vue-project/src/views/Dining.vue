@@ -39,8 +39,12 @@
       <el-breadcrumb separator="/">
         <el-breadcrumb-item :to="{ path: '/' }">目的地</el-breadcrumb-item>
         <el-breadcrumb-item><a href="/">广东</a></el-breadcrumb-item>
-        <el-breadcrumb-item><a href="/">广州</a></el-breadcrumb-item>
-        <el-breadcrumb-item><a href="/">广州美食</a></el-breadcrumb-item>
+        <el-breadcrumb-item
+          ><a href="/">{{ city }}</a></el-breadcrumb-item
+        >
+        <el-breadcrumb-item
+          ><a href="/">{{ city }}美食</a></el-breadcrumb-item
+        >
       </el-breadcrumb>
     </div>
   </div>
@@ -86,11 +90,15 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+const city = ref("广州"); // 默认值可以根据实际需要设置
+const limit = ref(10); // 默认展示数量
+const dishes = ref([]); // 菜品数据
+import { ref, onMounted, computed } from "vue";
 import { ElCard, ElIcon } from "element-plus";
 import { TrophyBase } from "@element-plus/icons-vue";
 import MarkdownIt from "markdown-it";
 import DishTable from "@/components/DishTable.vue";
+import axios from "axios";
 export default {
   name: "SightSpot",
   components: {
@@ -120,6 +128,31 @@ export default {
     const clearInput = () => {
       console.log("Input cleared");
     };
+    const fetchDishes = async () => {
+      try {
+        const response = await axios.get(
+          "http://api.doc.jiyou-tech.com/mock/30811/api/v1/dishes/rank",
+          {
+            params: {
+              city: city.value,
+              limit: limit.value,
+            },
+          }
+        );
+        const data = response.data.data;
+        if (Array.isArray(data)) {
+          dishes.value = data;
+        } else {
+          console.error("返回的数据不是一个数组:", data);
+        }
+      } catch (error) {
+        console.error("获取菜品数据失败:", error);
+      }
+    };
+
+    onMounted(() => {
+      fetchDishes();
+    });
 
     return {
       state1,
@@ -132,70 +165,73 @@ export default {
         require("../assets/食物1.jpg"), // 替换为你的图片 URL
         require("../assets/食物1.jpg"), // 替换为你的图片 URL
       ],
-      dishes: [
-        {
-          name: "汤",
-          score: 466,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "叉烧",
-          score: 216,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "烧鹅",
-          score: 112,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "叉烧包",
-          score: 87,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "猪手",
-          score: 73,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "牛河",
-          score: 53,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "煲仔饭",
-          score: 50,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "荷叶饭",
-          score: 2,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "冬瓜盅",
-          score: 2,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        {
-          name: "猪肚煲鸡",
-          score: 1,
-          imageUrl:
-            "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
-        },
-        // Add more dishes here as needed
-      ],
+      city,
+      limit,
+      dishes,
     };
+    // dishes: [
+    //   {
+    //     name: "汤",
+    //     score: 466,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "叉烧",
+    //     score: 216,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "烧鹅",
+    //     score: 112,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "叉烧包",
+    //     score: 87,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "猪手",
+    //     score: 73,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "牛河",
+    //     score: 53,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "煲仔饭",
+    //     score: 50,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "荷叶饭",
+    //     score: 2,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "冬瓜盅",
+    //     score: 2,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   {
+    //     name: "猪肚煲鸡",
+    //     score: 1,
+    //     imageUrl:
+    //       "https://img.jsdesign2.com/assets/img/6556e73f90ab84325baa606a.png#85d85dbadb9db0744eaa6c894d882c4d",
+    //   },
+    //   // Add more dishes here as needed
+    // ],
   },
 };
 </script>
